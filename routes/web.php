@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ParkingBookingController;
 use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\Admin\OverviewController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -41,6 +42,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/parkingPlan', [ParkingBookingController::class, 'index'])->name('parkingPlan.index');
     Route::post('/parkingPlan', [ParkingBookingController::class, 'store'])->name('parkingPlan.store');
+    Route::get('/about-us', function () {
+        return Inertia::render('Aboutus');
+    })->name('about.us');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -64,9 +68,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/parking-bookings/{booking}', [ParkingBookingController::class, 'update'])->name('parking-bookings.update');
 
         // Overview Route
-        Route::get('/overview', function () {
-            return Inertia::render('Admin/Overview/Index');
-        })->middleware(['auth', 'verified'])->name('overview');
+        Route::get('/overview', [OverviewController::class, 'index'])->name('overview');
 
         // Users Management
         Route::get('/users', [UsersController::class, 'index'])->name('users');

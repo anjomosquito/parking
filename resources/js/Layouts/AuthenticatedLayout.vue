@@ -28,7 +28,7 @@ const showingNavigationDropdown = ref(false);
                         <!-- Navigation Links -->
                         <div class="flex items-center space-x-8">
                             <Link :href="route('dashboard')" class="text-yellow-400 border-b-2 border-yellow-400">Home</Link>
-                            <a href="#" class="text-gray-300 hover:text-white">About us</a>
+                            <Link :href="route('about.us')" class="text-gray-300 hover:text-white">About us</Link>
                             <Link :href="route('parkingPlan.index')" class="text-gray-300 hover:text-white">Plan</Link>
 
                             <!-- Settings Dropdown -->
@@ -117,12 +117,12 @@ const showingNavigationDropdown = ref(false);
                         >
                             Home
                         </Link>
-                        <a
-                            href="#"
+                        <Link
+                            :href="route('about.us')"
                             class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out"
                         >
                             About us
-                        </a>
+                        </Link>
                         <Link
                             :href="route('parkingPlan.index')"
                             class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out"

@@ -16,7 +16,7 @@ const formattedBookings = computed(() => {
         const notes = booking.notes ? JSON.parse(booking.notes) : {};
         return {
             id: booking.id,
-            carType: notes.carType || 'N/A',
+            carType: booking.car_type || 'N/A',
             checkIn: {
                 date: new Date(booking.start_time).toLocaleDateString(),
                 time: new Date(booking.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

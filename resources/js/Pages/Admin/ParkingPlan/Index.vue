@@ -37,7 +37,7 @@ const formattedBookings = computed(() => {
         return {
             id: booking.id,
             user: booking.user?.name || 'Unknown User',
-            carType: notes.carType || 'N/A',
+            carType: booking.car_type || 'N/A',
             checkIn: {
                 date: new Date(booking.start_time).toLocaleDateString(),
                 time: new Date(booking.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

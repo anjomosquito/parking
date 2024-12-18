@@ -11,14 +11,8 @@ class UsersController extends Controller
 {
     public function index()
     {
-        $users = User::with('latestBooking')
-            ->paginate(10)
-            ->through(function ($user) {
-                if ($user->latestBooking && $user->latestBooking->notes) {
-                    $user->latestBooking->notes = json_decode($user->latestBooking->notes);
-                }
-                return $user;
-            });
+        $users = User::with('latestBooking.parkingSlot')
+            ->paginate(10);
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users

@@ -108,7 +108,7 @@
                                                 <div class="text-sm text-gray-500">{{ user.email }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ user.latest_booking?.notes?.carType || 'N/A' }}
+                                                {{ user.latest_booking?.car_type || 'N/A' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ user.latest_booking?.parking_slot.slot_number || 'N/A' }}
