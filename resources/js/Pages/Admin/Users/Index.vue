@@ -92,9 +92,11 @@
                                             <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status</th>
+
+
                                             <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Actions</th>
+                                                Bookings</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -119,16 +121,18 @@
                                                 </span>
                                                 <span v-else>N/A</span>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                                <Link v-if="user.latest_booking"
-                                                    :href="route('admin.parking-bookings.edit', user.latest_booking.id)"
-                                                    class="text-indigo-600 hover:text-indigo-900">
-                                                Edit
-                                                </Link>
-                                                <button v-if="user.latest_booking"
-                                                    @click="confirmDelete(user.latest_booking)"
-                                                    class="text-red-600 hover:text-red-900">
-                                                    Delete
+
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <button @click="showUserBookings(user)"
+                                                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
+                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                        <path fill-rule="evenodd"
+                                                            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                                            clip-rule="evenodd" />
+                                                    </svg>
+                                                    View Bookings
                                                 </button>
                                             </td>
                                         </tr>
@@ -184,17 +188,19 @@
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <Link v-if="selectedBooking" :href="route('admin.parking-bookings.destroy', selectedBooking.id)"
                         method="delete" as="button"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                     Delete
                     </Link>
                     <button @click="closeDeleteModal" type="button"
-                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                         Cancel
                     </button>
                 </div>
             </div>
         </div>
     </div>
+
+    <UserBookingsModal :show="showBookingsModal" :bookings="selectedUserBookings" @close="showBookingsModal = false" />
 
 </template>
 
@@ -204,6 +210,8 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import { ref } from 'vue';
+import UserBookingsModal from '@/Components/UserBookingsModal.vue';
+import axios from 'axios';
 
 const props = defineProps({
     users: {
@@ -214,6 +222,8 @@ const props = defineProps({
 
 const showDeleteModal = ref(false);
 const selectedBooking = ref(null);
+const showBookingsModal = ref(false);
+const selectedUserBookings = ref([]);
 
 const confirmDelete = (booking) => {
     selectedBooking.value = booking;
@@ -223,6 +233,16 @@ const confirmDelete = (booking) => {
 const closeDeleteModal = () => {
     selectedBooking.value = null;
     showDeleteModal.value = false;
+};
+
+const showUserBookings = async (user) => {
+    try {
+        const response = await axios.get(route('api.user.bookings', user.id));
+        selectedUserBookings.value = response.data;
+        showBookingsModal.value = true;
+    } catch (error) {
+        console.error('Error fetching user bookings:', error);
+    }
 };
 
 const getStatusColor = (status) => {

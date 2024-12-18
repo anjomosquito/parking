@@ -74,4 +74,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
 });
 
+Route::get('/api/users/{user}/bookings', function (App\Models\User $user) {
+    return $user->parkingBookings()
+        ->with('parkingSlot')
+        ->orderBy('created_at', 'desc')
+        ->get();
+})->name('api.user.bookings');
+
 require __DIR__.'/auth.php';
