@@ -65,8 +65,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Overview Route
         Route::get('/overview', function () {
-            return Inertia::render('Admin/Overview');
-        })->name('overview');
+            return Inertia::render('Admin/Overview/Index');
+        })->middleware(['auth', 'verified'])->name('overview');
 
         // Users Management
         Route::get('/users', [UsersController::class, 'index'])->name('users');
