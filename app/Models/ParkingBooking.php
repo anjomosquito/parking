@@ -13,6 +13,7 @@ class ParkingBooking extends Model
     protected $fillable = [
         'user_id',
         'parking_slot_id',
+        'car_type',
         'start_time',
         'end_time',
         'status',

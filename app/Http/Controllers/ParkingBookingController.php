@@ -34,10 +34,10 @@ class ParkingBookingController extends Controller
         $booking = ParkingBooking::create([
             'user_id' => auth()->id(),
             'parking_slot' => $validated['parking_slot'],
+            'car_type' => $validated['carType'],
             'start_time' => $validated['checkIn']['date'] . ' ' . $validated['checkIn']['time'],
             'end_time' => $validated['checkOut']['date'] . ' ' . $validated['checkOut']['time'],
             'notes' => json_encode([
-                'carType' => $validated['carType'],
                 'promoCode' => $validated['promoCode']
             ]),
             'status' => 'pending'
@@ -64,7 +64,7 @@ class ParkingBookingController extends Controller
 
         return Inertia::render('Admin/ParkingPlan/Edit', [
             'booking' => array_merge($booking->toArray(), [
-                'carType' => $notes['carType'] ?? null,
+                'carType' => $booking->car_type ?? null,
                 'promoCode' => $notes['promoCode'] ?? null,
                 'checkIn' => [
                     'date' => date('Y-m-d', strtotime($booking->start_time)),
@@ -93,10 +93,10 @@ class ParkingBookingController extends Controller
 
         $booking->update([
             'parking_slot' => $validated['parking_slot'],
+            'car_type' => $validated['carType'],
             'start_time' => $validated['checkIn']['date'] . ' ' . $validated['checkIn']['time'],
             'end_time' => $validated['checkOut']['date'] . ' ' . $validated['checkOut']['time'],
             'notes' => json_encode([
-                'carType' => $validated['carType'],
                 'promoCode' => $validated['promoCode']
             ]),
             'status' => $validated['status']

@@ -75,10 +75,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 Route::get('/api/users/{user}/bookings', function (App\Models\User $user) {
-    return $user->parkingBookings()
+    $bookings = $user->parkingBookings()
         ->with('parkingSlot')
         ->orderBy('created_at', 'desc')
-        ->get();
+        ->get()
+        ->map(function ($booking) {
+            $booking->car_type = $booking->car_type ?? json_decode($booking->notes, true)['carType'] ?? 'N/A';
+            return $booking;
+        });
+    return $bookings;
 })->name('api.user.bookings');
 
 require __DIR__.'/auth.php';
