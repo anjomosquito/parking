@@ -31,6 +31,10 @@
                         <NavLink :href="route('admin.overview')" :active="route().current('admin.overview')">
                             Overview
                         </NavLink>
+                        <NavLink :href="route('admin.parking-bookings.index')"
+                            :active="route().current('admin.parking-bookings.index')">
+                            Parking Plan
+                        </NavLink>
                         <NavLink :href="route('admin.users')" :active="route().current('admin.users')">
                             Users
                         </NavLink>
