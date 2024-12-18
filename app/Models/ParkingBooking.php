@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ParkingBooking extends Model
 {
@@ -11,7 +12,7 @@ class ParkingBooking extends Model
 
     protected $fillable = [
         'user_id',
-        'parking_slot',
+        'parking_slot_id',
         'start_time',
         'end_time',
         'status',
@@ -23,8 +24,21 @@ class ParkingBooking extends Model
         'end_time' => 'datetime',
     ];
 
-    public function user()
+    protected $with = ['parkingSlot'];
+
+    /**
+     * Get the user that owns the booking
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the parking slot associated with this booking
+     */
+    public function parkingSlot(): BelongsTo
+    {
+        return $this->belongsTo(ParkingSlot::class);
     }
 }

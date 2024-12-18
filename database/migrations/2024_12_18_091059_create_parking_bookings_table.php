@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('parking_bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('parking_slot');
+            $table->foreignId('parking_slot_id')->constrained('parking_slots')->onDelete('cascade');
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->string('status')->default('pending'); // pending, approved, rejected, completed

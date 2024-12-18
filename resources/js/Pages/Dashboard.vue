@@ -2,6 +2,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import Swal from 'sweetalert2';
+
 
 // Form handling with Inertia
 const form = useForm({
@@ -53,22 +55,36 @@ const formErrors = computed(() => {
 const handleSubmit = () => {
     form.post(route('parkingPlan.store'), {
         onSuccess: () => {
-            // Handle success (e.g., show a success message)
-            console.log('Booking successful!');
-            // Optionally, show a success message to the user
-            alert('Booking successful!');
+            // Show success notification using SweetAlert2
+            Swal.fire({
+                icon: 'success',
+                title: 'Booking Successful!',
+                text: 'Your parking booking has been successfully created.',
+                confirmButtonText: 'Okay',
+                background: '#1a202c',
+                color: '#fff',
+                confirmButtonColor: '#FBBF24',
+            });
         },
         onError: () => {
-            // Handle error (e.g., show error messages)
-            console.log('Booking failed!');
-            // Optionally, show an error message to the user
-            alert('Booking failed! Please check your inputs and try again.');
+            // Show error notification using SweetAlert2
+            Swal.fire({
+                icon: 'error',
+                title: 'Booking Failed!',
+                text: 'There was an error with your booking. Please check your inputs and try again.',
+                confirmButtonText: 'Okay',
+                background: '#1a202c',
+                color: '#fff',
+                confirmButtonColor: '#FBBF24',
+            });
         }
     });
 };
+
 </script>
 
 <template>
+
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
@@ -96,7 +112,8 @@ const handleSubmit = () => {
                         <!-- Car Type Selection -->
                         <div class="relative">
                             <label class="block text-sm font-medium text-yellow-400 mb-3">SELECT CAR TYPE</label>
-                            <select v-model="form.carType" class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200">
+                            <select v-model="form.carType"
+                                class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200">
                                 <option v-for="car in carTypes" :key="car" :value="car">{{ car }}</option>
                             </select>
                         </div>
@@ -104,27 +121,36 @@ const handleSubmit = () => {
                         <div class="relative">
                             <label class="block text-sm font-medium text-yellow-400 mb-3">CHECK IN</label>
                             <div class="flex gap-3">
-                                <input type="date" v-model="form.checkIn.date" class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
-                                <input type="time" v-model="form.checkIn.time" class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
-                                <p v-if="formErrors.checkIn" class="mt-2 text-sm text-red-500">{{ formErrors.checkIn }}</p>
+                                <input type="date" v-model="form.checkIn.date"
+                                    class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
+                                <input type="time" v-model="form.checkIn.time"
+                                    class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
+                                <p v-if="formErrors.checkIn" class="mt-2 text-sm text-red-500">{{ formErrors.checkIn }}
+                                </p>
                             </div>
                         </div>
                         <!-- Check Out -->
                         <div class="relative">
                             <label class="block text-sm font-medium text-yellow-400 mb-3">CHECK OUT</label>
                             <div class="flex gap-3">
-                                <input type="date" v-model="form.checkOut.date" class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
-                                <input type="time" v-model="form.checkOut.time" class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
-                                <p v-if="formErrors.checkOut" class="mt-2 text-sm text-red-500">{{ formErrors.checkOut }}</p>
+                                <input type="date" v-model="form.checkOut.date"
+                                    class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
+                                <input type="time" v-model="form.checkOut.time"
+                                    class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
+                                <p v-if="formErrors.checkOut" class="mt-2 text-sm text-red-500">{{ formErrors.checkOut
+                                    }}</p>
                             </div>
                         </div>
                         <!-- Promo Code -->
                         <div>
                             <label class="block text-sm font-medium text-yellow-400 mb-3">PROMO CODE (optional)</label>
-                            <input type="text" v-model="form.promoCode" class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
+                            <input type="text" v-model="form.promoCode"
+                                class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-yellow-400 transition duration-200" />
                         </div>
                         <div class="md:col-span-2 mt-8 flex justify-end">
-                            <button type="submit" class="w-full bg-yellow-400 text-white font-bold py-2 rounded-md hover:bg-yellow-500 transition duration-200 shadow-md">Book Now</button>
+                            <button type="submit"
+                                class="w-full bg-yellow-400 text-white font-bold py-2 rounded-md hover:bg-yellow-500 transition duration-200 shadow-md">Book
+                                Now</button>
                         </div>
                     </form>
                 </div>
@@ -144,12 +170,15 @@ const handleSubmit = () => {
 }
 
 /* Smooth transitions */
-.button, input, select {
+.button,
+input,
+select {
     transition: all 0.2s ease-in-out;
 }
 
 /* Hover effects on inputs */
-input:hover, input:focus {
+input:hover,
+input:focus {
     border-color: #4B5563;
     outline: none;
 }
