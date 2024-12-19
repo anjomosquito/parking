@@ -88,17 +88,33 @@
 import { ref, onMounted } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
-
-const selectedPlanPrice = sessionStorage.getItem('selectedPlanPrice');
-const selectedCarType = sessionStorage.getItem('selectedCarType');
+import axios from 'axios';
 
 const bookingDetails = ref({
-    planPrice: selectedPlanPrice ? parseFloat(selectedPlanPrice) : 0,
-    carType: selectedCarType || '',
+    planId: '',
+    planName: '',
+    planPrice: '',
+    carType: '',
     checkIn: '',
     checkOut: '',
     promoCode: '',
+    duration: 0,
     parkingSlot: ''
+});
+
+const getBookingDetailsFromSessionStorage = () => {
+    const storedBookingDetails = sessionStorage.getItem('bookingDetails');
+    if (storedBookingDetails) {
+        const parsedDetails = JSON.parse(storedBookingDetails);
+        bookingDetails.value = {
+            ...parsedDetails,
+            parkingSlot: '' // Reset parking slot
+        };
+    }
+};
+
+onMounted(() => {
+    getBookingDetailsFromSessionStorage();
 });
 
 const selectedMethod = ref(null);
@@ -121,18 +137,6 @@ const selectMethod = (method) => {
     };
 };
 
-onMounted(() => {
-  const storedBookingData = sessionStorage.getItem('bookingData');
-  if (storedBookingData) {
-    const bookingData = JSON.parse(storedBookingData);
-    bookingDetails.value.carType = bookingData.carType;
-    bookingDetails.value.checkIn = bookingData.checkIn;
-    bookingDetails.value.checkOut = bookingData.checkOut;
-    bookingDetails.value.promoCode = bookingData.promoCode;
-    bookingDetails.value.parkingSlot = bookingData.parkingSlot;
-  }
-});
-
 const processPayment = () => {
     if (!selectedMethod.value) {
         Swal.fire({
@@ -143,61 +147,44 @@ const processPayment = () => {
         return;
     }
 
-    if (!bookingDetails.value.carType) {
+    // Generate a unique parking slot
+    axios.get('/api/generate-parking-slot').then(response => {
+        const parkingSlot = response.data.slot_number;
+        bookingDetails.value.parkingSlot = parkingSlot;
+
+        // Mark the slot as occupied after successful payment
+        router.post(route('payment.process'), {
+            bookingDetails: bookingDetails.value,
+            paymentMethod: selectedMethod.value,
+            paymentDetails: paymentDetails.value,
+        }, {
+            onSuccess: () => {
+                // Mark the parking slot as occupied
+                axios.post(`/api/mark-slot-occupied/${parkingSlot}`);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Successful!',
+                    text: `Your booking has been confirmed. Parking Slot: ${parkingSlot}`,
+                    confirmButtonColor: '#1d4ed8',
+                }).then(() => {
+                    window.location.href = route('dashboard');
+                });
+            },
+            onError: (errors) => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Failed',
+                    text: Object.values(errors)[0] || 'There was an error processing your payment.'
+                });
+            }
+        });
+    }).catch(error => {
         Swal.fire({
             icon: 'error',
-            title: 'Car Type Required',
-            text: 'Please select a car type before proceeding.',
-            confirmButtonColor: '#d33'
+            title: 'Parking Slot Error',
+            text: 'Unable to generate a parking slot. Please try again.'
         });
-        return;
-    }
-
-    // Validate required fields based on payment method
-    if (selectedMethod.value === 'gcash') {
-        if (!paymentDetails.value.gcashNumber || !paymentDetails.value.fullName || !paymentDetails.value.email) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Missing Information',
-                text: 'Please fill in all GCash fields.'
-            });
-            return;
-        }
-    } else if (selectedMethod.value === 'paypal') {
-        if (!paymentDetails.value.paypalEmail || !paymentDetails.value.fullName || !paymentDetails.value.transactionId) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Missing Information',
-                text: 'Please fill in all PayPal fields.'
-            });
-            return;
-        }
-    }
-
-    router.post(route('payment.process'), {
-        bookingDetails: bookingDetails.value,
-        paymentMethod: selectedMethod.value,
-        paymentDetails: paymentDetails.value,
-    }, {
-        onSuccess: () => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Payment Successful!',
-                text: 'Your booking has been confirmed.',
-                confirmButtonColor: '#1d4ed8',
-            }).then(() => {
-                // Clear the stored booking details
-                sessionStorage.removeItem('selectedPlanPrice');
-                window.location.href = route('dashboard');
-            });
-        },
-        onError: (errors) => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Payment Failed',
-                text: Object.values(errors)[0] || 'There was an error processing your payment.'
-            });
-        }
     });
 };
 </script>

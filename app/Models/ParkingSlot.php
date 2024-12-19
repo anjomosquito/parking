@@ -11,14 +11,11 @@ class ParkingSlot extends Model
 {
     protected $fillable = [
         'slot_number',
-        'is_occupied',
-        'current_number',
-        'user_id'
+        'is_occupied'
     ];
 
     protected $casts = [
-        'is_occupied' => 'boolean',
-        'current_number' => 'integer'
+        'is_occupied' => 'boolean'
     ];
 
     /**
@@ -40,25 +37,39 @@ class ParkingSlot extends Model
             return 'A1';
         }
 
-        $currentNumber = $lastSlot->current_number + 1;
-        $letter = chr(ord('A') + floor(($currentNumber - 1) / 10));
-        $number = ($currentNumber - 1) % 10 + 1;
-
+        preg_match('/([A-Z])(\d+)/', $lastSlot->slot_number, $matches);
+        
+        $letter = $matches[1];
+        $number = intval($matches[2]);
+        
+        // Increment number or letter
+        $number++;
+        if ($number > 50) {
+            $letter = chr(ord($letter) + 1);
+            $number = 1;
+        }
+        
         return $letter . $number;
     }
 
     /**
-     * Create a new parking slot with auto-incremented number
+     * Find or create an available parking slot
      */
-    public static function createNextSlot()
+    public static function findOrCreateAvailableSlot()
     {
-        $nextSlotNumber = static::getNextSlotNumber();
-        $currentNumber = static::count() + 1;
+        // First, try to find an unoccupied existing slot
+        $existingSlot = static::where('is_occupied', false)->first();
+        
+        if ($existingSlot) {
+            return $existingSlot;
+        }
+
+        // If no unoccupied slots, generate a new unique slot
+        $newSlotNumber = static::getNextSlotNumber();
 
         return static::create([
-            'slot_number' => $nextSlotNumber,
-            'is_occupied' => false,
-            'current_number' => $currentNumber
+            'slot_number' => $newSlotNumber,
+            'is_occupied' => false
         ]);
     }
 

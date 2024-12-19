@@ -4,7 +4,6 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import Swal from 'sweetalert2';
 
-
 // Form handling with Inertia
 const form = useForm({
     carType: 'Honda Civic',
@@ -62,6 +61,60 @@ const handleBooking = () => {
     };
     sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
     router.visit(route('payment.step1'));
+};
+
+// New bookNow method
+const selectedPlan = ref(null);
+const selectedCarType = ref(null);
+const checkInDate = ref(null);
+const checkOutDate = ref(null);
+const promoCode = ref(null);
+
+const bookNow = () => {
+    // Validate required fields
+    if (!selectedPlan.value) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Plan Selection Required',
+            text: 'Please select a parking plan.'
+        });
+        return;
+    }
+
+    if (!selectedCarType.value) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Car Type Required',
+            text: 'Please select a car type.'
+        });
+        return;
+    }
+
+    // Prepare booking details
+    const bookingDetails = {
+        planId: selectedPlan.value.id,
+        planName: selectedPlan.value.name,
+        planPrice: selectedPlan.value.price,
+        carType: selectedCarType.value,
+        checkIn: checkInDate.value,
+        checkOut: checkOutDate.value,
+        promoCode: promoCode.value || '',
+        duration: calculateDuration()
+    };
+
+    // Save to session storage
+    sessionStorage.setItem('selectedPlanPrice', selectedPlan.value.price);
+    sessionStorage.setItem('selectedCarType', selectedCarType.value);
+    sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
+
+    // Navigate to Payment1
+    router.visit(route('payment.step1'));
+};
+
+// Note: calculateDuration function is not defined in the provided code, 
+// you need to define it or import it from somewhere else.
+const calculateDuration = () => {
+    // implement your logic here
 };
 
 </script>

@@ -50,6 +50,26 @@ const formErrors = computed(() => {
     };
 });
 
+// Booking details
+const bookingDetails = ref({
+    planId: '',
+    planName: '',
+    planPrice: '',
+    carType: '',
+    checkIn: '',
+    checkOut: '',
+    promoCode: '',
+    duration: 0
+});
+
+onMounted(() => {
+    // Retrieve booking details from session storage
+    const storedBookingDetails = sessionStorage.getItem('bookingDetails');
+    if (storedBookingDetails) {
+        bookingDetails.value = JSON.parse(storedBookingDetails);
+    }
+});
+
 // Submit Function
 const handleSubmit = () => {
     form.post(route('parkingPlan.store'), {
@@ -79,15 +99,6 @@ const handleSubmit = () => {
         }
     });
 };
-
-// Get booking details from session storage
-let bookingDetails = null;
-onMounted(() => {
-  const storedDetails = sessionStorage.getItem('bookingDetails');
-  if (storedDetails) {
-    bookingDetails = JSON.parse(storedDetails);
-  }
-});
 
 onMounted(() => {
   const storedBookingData = sessionStorage.getItem('bookingData');
@@ -120,7 +131,7 @@ const selectPlan = (plan) => {
   
   // Combine booking details with selected plan
   const paymentData = {
-    ...bookingDetails,
+    ...bookingDetails.value,
     selectedPlan: plan,
     planPrice: price
   };

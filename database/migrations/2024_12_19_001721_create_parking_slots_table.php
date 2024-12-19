@@ -11,18 +11,15 @@ return new class extends Migration
     {
         Schema::create('parking_slots', function (Blueprint $table) {
             $table->id();
-            $table->string('slot_number')->unique(); // Will store values like 'A1', 'A2', etc.
+            $table->string('slot_number')->unique();
             $table->boolean('is_occupied')->default(false);
-            $table->integer('current_number')->default(1);
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
 
-        // Insert initial slot with counter
+        // Insert initial slot with a flag for infinite generation
         DB::table('parking_slots')->insert([
             'slot_number' => 'A1',
             'is_occupied' => false,
-            'current_number' => 1,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

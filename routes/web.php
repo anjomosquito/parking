@@ -9,6 +9,7 @@ use App\Http\Controllers\ParkingBookingController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\OverviewController;
 use App\Http\Controllers\PaymentController; // Added PaymentController
+use App\Http\Controllers\ParkingSlotController; // Added ParkingSlotController
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -95,5 +96,8 @@ Route::get('/api/users/{user}/bookings', function (App\Models\User $user) {
         });
     return $bookings;
 })->name('api.user.bookings');
+
+Route::get('/api/generate-parking-slot', [ParkingSlotController::class, 'generateUniqueSlot']);
+Route::post('/api/mark-slot-occupied/{slotNumber}', [ParkingSlotController::class, 'markSlotOccupied']);
 
 require __DIR__.'/auth.php';
