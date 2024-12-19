@@ -15,6 +15,7 @@ return new class extends Migration
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->string('status')->default('pending'); // pending, approved, rejected, completed
+            $table->decimal('amount', 10, 2)->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
         });

@@ -1,4 +1,5 @@
 <template>
+
   <Head title="Admin Overview" />
 
   <div class="min-h-screen bg-black relative">
@@ -26,7 +27,6 @@
             <NavLink :href="route('admin.dashboard')" :active="route().current('admin.dashboard')">
               Dashboard
             </NavLink>
-
             <NavLink :href="route('admin.overview')" :active="route().current('admin.overview')">
               Overview
             </NavLink>
@@ -45,7 +45,6 @@
                   <button type="button"
                     class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                     Admin
-
                     <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                       fill="currentColor">
                       <path fill-rule="evenodd"
@@ -66,36 +65,35 @@
           </div>
         </div>
       </div>
+
+      <!-- Parking Occupancy Section -->
+      <div class="bg-white rounded-lg p-8 shadow-md mb-8 w-full">
+        <h3 class="text-xl font-bold mb-4">Parking Occupancy</h3>
+        <div class="grid grid-cols-10 gap-2">
+          <template v-for="i in 50" :key="i">
+            <button :class="[
+              'py-2 px-4 rounded font-bold text-sm',
+              parkingSlots.includes(`A${i}`)
+                ? 'bg-red-500 text-white'
+                : 'bg-green-500 text-white'
+            ]">
+              A{{ i }}
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Stats Section -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Parking Occupancy -->
-        <div class="bg-white rounded-lg p-6 shadow-md">
-          <h3 class="text-xl font-bold mb-4">Parking Occupancy</h3>
-          <div class="grid grid-cols-5 gap-2">
-            <template v-for="i in 50" :key="i">
-              <button 
-                :class="[
-                  'py-2 px-4 rounded font-bold text-sm',
-                  parkingSlots.includes(`A${i}`) 
-                    ? 'bg-red-500 text-white' 
-                    : 'bg-green-500 text-white'
-                ]"
-              >
-                A{{ i }}
-              </button>
-            </template>
-          </div>
+        <div class="bg-white rounded-lg p-6 shadow-md flex flex-col items-center justify-center w-64 h-64">
+          <h3 class="text-xl font-bold mb-4">Parking Lots Occupied</h3>
+          <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.occupied_spaces }}/{{ todayStats.total_spaces
+            }}</span>
         </div>
 
-        <!-- Total Customers Today -->
-        <div class="bg-white rounded-lg p-6 shadow-md">
+        <div class="bg-white rounded-lg p-6 shadow-md flex flex-col items-center justify-center w-64 h-64">
           <h3 class="text-xl font-bold mb-4">Total Customers Today</h3>
           <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.total_bookings_today }}</span>
-        </div>
-
-        <!-- Parking Lots Occupied -->
-        <div class="bg-white rounded-lg p-6 shadow-md">
-          <h3 class="text-xl font-bold mb-4">Parking Lots Occupied</h3>
-          <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.occupied_spaces }}/{{ todayStats.total_spaces }}</span>
         </div>
       </div>
 
@@ -107,11 +105,19 @@
             <table class="min-w-full divide-y divide-gray-200">
               <thead>
                 <tr>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Info</th>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bookings</th>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latest Booking</th>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    User
+                    Info</th>
+                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contact</th>
+                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Bookings</th>
+                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Latest
+                    Booking</th>
+                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
@@ -121,48 +127,46 @@
                     <div class="text-sm font-medium text-gray-900">{{ user.name }}</div>
                     <div class="text-sm text-gray-500">Joined {{ new Date(user.created_at).toLocaleDateString() }}</div>
                   </td>
-                  
+
                   <!-- Contact -->
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm text-gray-900">{{ user.email }}</div>
                     <div class="text-sm text-gray-500">{{ user.phone }}</div>
                   </td>
-                  
+
                   <!-- Bookings -->
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm text-gray-900">Total: {{ user.total_bookings }}</div>
                     <div class="text-sm text-gray-500">Approved: {{ user.approved_bookings }}</div>
                     <div class="text-sm text-gray-500">Success Rate: {{ user.booking_rate }}%</div>
                   </td>
-                  
+
                   <!-- Latest Booking -->
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div v-if="user.latest_booking" class="text-sm">
                       <div class="text-gray-900">{{ user.latest_booking.car_type }}</div>
-                      <div class="text-gray-500">From: {{ new Date(user.latest_booking.start_time).toLocaleString() }}</div>
+                      <div class="text-gray-500">From: {{ new Date(user.latest_booking.start_time).toLocaleString() }}
+                      </div>
                       <div class="text-gray-500">To: {{ new Date(user.latest_booking.end_time).toLocaleString() }}</div>
                     </div>
                     <div v-else class="text-sm text-gray-500">No bookings yet</div>
                   </td>
-                  
+
                   <!-- Status -->
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <span v-if="user.is_active" 
-                          class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      Currently Active
-                    </span>
-                    <span v-else-if="user.latest_booking" 
-                          :class="[
-                            'px-2 inline-flex text-xs leading-5 font-semibold rounded-full',
-                            user.latest_booking.status === 'approved' 
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          ]">
+                    <span v-if="user.is_active"
+                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Currently
+                      Active</span>
+                    <span v-else-if="user.latest_booking" :class="[
+                      'px-2 inline-flex text-xs leading-5 font-semibold rounded-full',
+                      user.latest_booking.status === 'approved'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    ]">
                       {{ user.latest_booking.status }}
                     </span>
-                    <span v-else class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                      Inactive
-                    </span>
+                    <span v-else
+                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>
                   </td>
                 </tr>
               </tbody>
@@ -174,6 +178,8 @@
   </div>
 </template>
 
+
+
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import Dropdown from '@/Components/Dropdown.vue';
@@ -181,27 +187,27 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 
 const props = defineProps({
-    todayStats: {
-        type: Object,
-        default: () => ({
-            total_spaces: 0,
-            occupied_spaces: 0,
-            total_bookings_today: 0,
-            active_users: 0
-        })
-    },
-    weeklyStats: {
-        type: Array,
-        default: () => []
-    },
-    activeUsers: {
-        type: Array,
-        default: () => []
-    },
-    parkingSlots: {
-        type: Array,
-        default: () => []
-    }
+  todayStats: {
+    type: Object,
+    default: () => ({
+      total_spaces: 0,
+      occupied_spaces: 0,
+      total_bookings_today: 0,
+      active_users: 0
+    })
+  },
+  weeklyStats: {
+    type: Array,
+    default: () => []
+  },
+  activeUsers: {
+    type: Array,
+    default: () => []
+  },
+  parkingSlots: {
+    type: Array,
+    default: () => []
+  }
 });
 </script>
 

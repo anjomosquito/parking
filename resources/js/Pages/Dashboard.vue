@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import Swal from 'sweetalert2';
 
@@ -51,34 +51,17 @@ const formErrors = computed(() => {
     };
 });
 
-// Submit Function
-const handleSubmit = () => {
-    form.post(route('parkingPlan.store'), {
-        onSuccess: () => {
-            // Show success notification using SweetAlert2
-            Swal.fire({
-                icon: 'success',
-                title: 'Booking Successful!',
-                text: 'Your parking booking has been successfully created.',
-                confirmButtonText: 'Okay',
-                background: '#1a202c',
-                color: '#fff',
-                confirmButtonColor: '#FBBF24',
-            });
-        },
-        onError: () => {
-            // Show error notification using SweetAlert2
-            Swal.fire({
-                icon: 'error',
-                title: 'Booking Failed!',
-                text: 'There was an error with your booking. Please check your inputs and try again.',
-                confirmButtonText: 'Okay',
-                background: '#1a202c',
-                color: '#fff',
-                confirmButtonColor: '#FBBF24',
-            });
-        }
-    });
+// Function to store form data in session storage and navigate to Payment1.vue
+const handleBooking = () => {
+    const bookingData = {
+        carType: form.carType,
+        checkIn: form.checkIn,
+        checkOut: form.checkOut,
+        promoCode: form.promoCode,
+        parkingSlot: form.parking_slot
+    };
+    sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+    router.visit(route('payment.step1'));
 };
 
 </script>
@@ -108,7 +91,7 @@ const handleSubmit = () => {
                     <div class="text-center mb-8">
                         <h3 class="text-3xl text-yellow-400 font-bold">Book Now</h3>
                     </div>
-                    <form @submit.prevent="handleSubmit" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form @submit.prevent="handleBooking" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Car Type Selection -->
                         <div class="relative">
                             <label class="block text-sm font-medium text-yellow-400 mb-3">SELECT CAR TYPE</label>

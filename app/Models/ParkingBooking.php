@@ -18,6 +18,7 @@ class ParkingBooking extends Model
         'end_time',
         'status',
         'notes',
+        'amount',
     ];
 
     protected $casts = [

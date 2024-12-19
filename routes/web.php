@@ -8,6 +8,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ParkingBookingController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\OverviewController;
+use App\Http\Controllers\PaymentController; // Added PaymentController
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -45,6 +46,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/about-us', function () {
         return Inertia::render('Aboutus');
     })->name('about.us');
+});
+
+Route::middleware(['auth'])->group(function () {
+    // Payment Routes
+    Route::get('/payment/step1', [PaymentController::class, 'step1'])->name('payment.step1');
+    Route::get('/payment/step2', [PaymentController::class, 'step2'])->name('payment.step2');
+    Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
