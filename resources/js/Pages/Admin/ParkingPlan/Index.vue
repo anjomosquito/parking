@@ -87,8 +87,12 @@ const formattedBookings = computed(() => {
 
 const downloadPDF = () => {
     const doc = new jsPDF();
-    doc.text('Parking Bookings Report', 20, 20);
+    doc.setFontSize(18);
+    doc.text('Parking Bookings Report', 14, 22);
+    doc.setFontSize(11);
+    doc.text('Generated on: ' + new Date().toLocaleDateString(), 14, 30);
     doc.autoTable({
+        startY: 40,
         head: [['User', 'Car Type', 'Parking Slot', 'Check-In', 'Check-Out', 'Status', 'Amount']],
         body: formattedBookings.value.map(booking => [
             booking.user,
@@ -99,6 +103,9 @@ const downloadPDF = () => {
             booking.status,
             booking.amount
         ]),
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255] },
+        footStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255] },
     });
     doc.save('parking_bookings_report.pdf');
 };
@@ -113,6 +120,26 @@ const downloadExcel = () => {
         Status: booking.status,
         Amount: booking.amount
     })));
+
+    // Add a title row
+    XLSX.utils.sheet_add_aoa(worksheet, [['Parking Bookings Report']], { origin: 'A1' });
+    XLSX.utils.sheet_add_aoa(worksheet, [['Generated on: ' + new Date().toLocaleDateString()]], { origin: 'A2' });
+
+    // Merge cells for the title
+    worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 6 } }];
+
+    // Set header styles
+    const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 2, c: C });
+        if (!worksheet[cellAddress]) continue;
+        worksheet[cellAddress].s = {
+            font: { bold: true },
+            fill: { fgColor: { rgb: "2980B9" } },
+            alignment: { horizontal: "center" }
+        };
+    }
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Bookings');
     XLSX.writeFile(workbook, 'parking_bookings_report.xlsx');
