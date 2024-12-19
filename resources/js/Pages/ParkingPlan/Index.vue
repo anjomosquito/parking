@@ -3,11 +3,48 @@ import { Head, Link } from '@inertiajs/vue3';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 // Accept props passed from the controller
 const props = defineProps({
-    bookingDetails: Object
+    bookingDetails: Object,
+    bookings: Object
 });
+
+const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Parking Bookings Report', 20, 20);
+    doc.autoTable({
+        head: [['User', 'Car Type', 'Parking Slot', 'Check-In', 'Check-Out', 'Status', 'Amount']],
+        body: props.bookings.data.map(booking => [
+            booking.user,
+            booking.carType,
+            booking.parking_slot.slot_number,
+            `${booking.checkIn.date} ${booking.checkIn.time}`,
+            `${booking.checkOut.date} ${booking.checkOut.time}`,
+            booking.status,
+            booking.amount
+        ]),
+    });
+    doc.save('parking_bookings_report.pdf');
+};
+
+const downloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(props.bookings.data.map(booking => ({
+        User: booking.user,
+        'Car Type': booking.carType,
+        'Parking Slot': booking.parking_slot.slot_number,
+        'Check-In': `${booking.checkIn.date} ${booking.checkIn.time}`,
+        'Check-Out': `${booking.checkOut.date} ${booking.checkOut.time}`,
+        Status: booking.status,
+        Amount: booking.amount
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Bookings');
+    XLSX.writeFile(workbook, 'parking_bookings_report.xlsx');
+};
 </script>
 
 <template>
@@ -75,7 +112,24 @@ const props = defineProps({
                                 </template>
                             </Dropdown>
                         </div>
+                        <div class="ml-3">
+                            <button @click="downloadPDF" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Download PDF Report
+                            </button>
+                            <button @click="downloadExcel" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                Download Excel Report
+                            </button>
+                        </div>
                     </div>
+                </div>
+
+                <div class="flex justify-end mb-4">
+                    <button @click="downloadPDF" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200">
+                        Download PDF
+                    </button>
+                    <button @click="downloadExcel" class="bg-green-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-green-600 transition duration-200 ml-2">
+                        Download Excel
+                    </button>
                 </div>
 
                 <!-- Display booking information -->

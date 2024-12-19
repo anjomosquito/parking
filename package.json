@@ -19,6 +19,9 @@
     "dependencies": {
         "chart.js": "^4.4.7",
         "date-fns": "^4.1.0",
-        "sweetalert2": "^11.15.2"
+        "jspdf": "^2.5.2",
+        "jspdf-autotable": "^3.8.4",
+        "sweetalert2": "^11.15.2",
+        "xlsx": "^0.18.5"
     }
 }

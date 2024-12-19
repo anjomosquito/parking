@@ -5,6 +5,10 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import { computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 const props = defineProps({
     bookings: {
@@ -22,12 +26,39 @@ const form = useForm({
 });
 
 const updateStatus = (bookingId, newStatus) => {
-    form.status = newStatus;
-    form.patch(route('admin.parking-bookings.update-status', bookingId), {
-        preserveScroll: true,
-        onSuccess: () => {
-            form.reset();
-        },
+    const action = newStatus === 'approved' ? 'approve' : 'reject';
+
+    Swal.fire({
+        title: `Are you sure you want to ${action} this booking?`,
+        text: `This action will ${newStatus === 'approved' ? 'approve' : 'reject'} the booking.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, ${action} it!`,
+        cancelButtonText: 'Cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.status = newStatus;
+            form.patch(route('admin.parking-bookings.update-status', bookingId), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    Swal.fire(
+                        `${newStatus === 'approved' ? 'Approved!' : 'Rejected!'}`,
+                        `The booking has been ${newStatus === 'approved' ? 'approved' : 'rejected'}.`,
+                        'success'
+                    );
+                    form.reset();
+                },
+                onError: () => {
+                    Swal.fire(
+                        'Error',
+                        'An error occurred while updating the status. Please try again.',
+                        'error'
+                    );
+                },
+            });
+        }
     });
 };
 
@@ -48,11 +79,46 @@ const formattedBookings = computed(() => {
             },
             status: booking.status,
             promoCode: notes.promoCode || '-',
-            parking_slot: booking.parking_slot
+            parking_slot: booking.parking_slot,
+            amount: booking.amount
         };
     });
 });
+
+const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Parking Bookings Report', 20, 20);
+    doc.autoTable({
+        head: [['User', 'Car Type', 'Parking Slot', 'Check-In', 'Check-Out', 'Status', 'Amount']],
+        body: formattedBookings.value.map(booking => [
+            booking.user,
+            booking.carType,
+            booking.parking_slot.slot_number,
+            `${booking.checkIn.date} ${booking.checkIn.time}`,
+            `${booking.checkOut.date} ${booking.checkOut.time}`,
+            booking.status,
+            booking.amount
+        ]),
+    });
+    doc.save('parking_bookings_report.pdf');
+};
+
+const downloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(formattedBookings.value.map(booking => ({
+        User: booking.user,
+        'Car Type': booking.carType,
+        'Parking Slot': booking.parking_slot.slot_number,
+        'Check-In': `${booking.checkIn.date} ${booking.checkIn.time}`,
+        'Check-Out': `${booking.checkOut.date} ${booking.checkOut.time}`,
+        Status: booking.status,
+        Amount: booking.amount
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Bookings');
+    XLSX.writeFile(workbook, 'parking_bookings_report.xlsx');
+};
 </script>
+
 
 <template>
 
@@ -128,105 +194,119 @@ const formattedBookings = computed(() => {
                         <div class="p-8 text-gray-900">
                             <h2 class="text-3xl font-bold mb-8">Parking Bookings</h2>
                             <div class="bg-white rounded-lg">
-                                <table class="w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="w-[15%] px-8 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                                User</th>
-                                            <th class="w-[12%] px-8 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                                Car Type</th>
-                                            <th class="w-[10%] px-8 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                                Parking Slot</th>
-                                            <th class="w-[15%] px-8 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                                Check In</th>
-                                            <th class="w-[15%] px-8 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                                Check Out</th>
-                                            <th class="w-[13%] px-8 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                                Status</th>
-                                            <th class="w-[20%] px-8 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                                Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr v-for="booking in formattedBookings" :key="booking.id" class="hover:bg-gray-50">
-                                            <td class="px-8 py-6 text-base">{{ booking.user }}</td>
-                                            <td class="px-8 py-6 text-base">{{ booking.carType }}</td>
-                                            <td class="px-8 py-6 text-base">{{ booking.parking_slot.slot_number }}</td>
-                                            <td class="px-8 py-6 text-base">
-                                                {{ booking.checkIn.date }} {{ booking.checkIn.time }}
-                                            </td>
-                                            <td class="px-8 py-6 text-base">
-                                                {{ booking.checkOut.date }} {{ booking.checkOut.time }}
-                                            </td>
-                                            <td class="px-8 py-6">
-                                                <span :class="{
-                                                    'px-4 py-2 text-sm font-medium rounded-full': true,
-                                                    'bg-yellow-100 text-yellow-800': booking.status === 'pending',
-                                                    'bg-green-100 text-green-800': booking.status === 'approved',
-                                                    'bg-red-100 text-red-800': booking.status === 'rejected',
-                                                    'bg-gray-100 text-gray-800': booking.status === 'completed'
-                                                }">
-                                                    {{ booking.status }}
-                                                </span>
-                                            </td>
-                                            <td class="px-8 py-6 text-sm">
-                                                <div class="flex space-x-2">
-                                                    <button v-if="booking.status === 'pending'"
-                                                        @click="updateStatus(booking.id, 'approved')"
-                                                        class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
-                                                            viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fill-rule="evenodd"
-                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                clip-rule="evenodd" />
-                                                        </svg>
-                                                        Approve
-                                                    </button>
-                                                    <button v-if="booking.status === 'pending'"
-                                                        @click="updateStatus(booking.id, 'rejected')"
-                                                        class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
-                                                            viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fill-rule="evenodd"
-                                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                                clip-rule="evenodd" />
-                                                        </svg>
-                                                        Reject
-                                                    </button>
-                                                    <button v-if="booking.status === 'approved'"
-                                                        @click="updateStatus(booking.id, 'completed')"
-                                                        class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
-                                                            viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fill-rule="evenodd"
-                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                clip-rule="evenodd" />
-                                                        </svg>
-                                                        Mark Complete
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr v-if="formattedBookings.length === 0">
-                                            <td colspan="7" class="px-8 py-6 text-center text-gray-500 text-lg">
-                                                No bookings found
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                <div class="flex justify-end mb-4">
+                                    <button @click="downloadPDF" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200">
+                                        Download PDF
+                                    </button>
+                                    <button @click="downloadExcel" class="bg-green-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-green-600 transition duration-200 ml-2">
+                                        Download Excel
+                                    </button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th
+                                                    class="w-[15%] px-6 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                                    User
+                                                </th>
+                                                <th
+                                                    class="w-[15%] px-6 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                                    Car Type
+                                                </th>
+                                                <th
+                                                    class="w-[15%] px-6 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                                    Parking Slot
+                                                </th>
+                                                <th
+                                                    class="w-[15%] px-6 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                                    Check-In
+                                                </th>
+                                                <th
+                                                    class="w-[15%] px-6 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                                    Check-Out
+                                                </th>
+                                                <th
+                                                    class="w-[10%] px-6 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                                    Status
+                                                </th>
+                                                <th
+                                                    class="w-[10%] px-6 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                                    Amount
+                                                </th>
+                                                <th
+                                                    class="w-[15%] px-6 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr v-for="booking in formattedBookings" :key="booking.id"
+                                                class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 text-base">{{ booking.user }}</td>
+                                                <td class="px-6 py-4 text-base">{{ booking.carType }}</td>
+                                                <td class="px-6 py-4 text-base">{{ booking.parking_slot.slot_number }}
+                                                </td>
+                                                <td class="px-6 py-4 text-base">
+                                                    {{ booking.checkIn.date }} {{ booking.checkIn.time }}
+                                                </td>
+                                                <td class="px-6 py-4 text-base">
+                                                    {{ booking.checkOut.date }} {{ booking.checkOut.time }}
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span :class="{
+                                                        'px-4 py-2 text-sm font-medium rounded-full': true,
+                                                        'bg-yellow-100 text-yellow-800': booking.status === 'pending',
+                                                        'bg-green-100 text-green-800': booking.status === 'approved',
+                                                        'bg-red-100 text-red-800': booking.status === 'rejected',
+                                                        'bg-gray-100 text-gray-800': booking.status === 'completed'
+                                                    }">
+                                                        {{ booking.status }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-base">{{ booking.amount }}</td>
+                                                <td class="px-6 py-4 text-sm">
+                                                    <div class="flex space-x-2">
+                                                        <button v-if="booking.status === 'pending'"
+                                                            @click="updateStatus(booking.id, 'approved')"
+                                                            class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600">
+                                                            Approve
+                                                        </button>
+                                                        <button v-if="booking.status === 'pending'"
+                                                            @click="updateStatus(booking.id, 'rejected')"
+                                                            class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600">
+                                                            Reject
+                                                        </button>
+                                                        <button v-if="booking.status === 'approved'"
+                                                            @click="updateStatus(booking.id, 'completed')"
+                                                            class="bg-gray-500 text-white px-3 py-1 rounded-md hover:bg-gray-600">
+                                                            Mark Complete
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr v-if="formattedBookings.length === 0">
+                                                <td colspan="8" class="px-6 py-4 text-center text-gray-500 text-lg">
+                                                    No bookings found
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                            <!-- Pagination Links -->
-                            <div class="mt-8" v-if="bookings.links && bookings.links.length > 3">
-                                <div class="flex justify-center gap-4">
-                                    <template v-for="(link, index) in bookings.links" :key="index">
-                                        <Link v-if="link.url" :href="link.url" v-html="link.label"
-                                            class="px-4 py-2 rounded-md border text-base" :class="{
-                                                'bg-blue-500 text-white border-blue-600': link.active,
-                                                'text-gray-600 hover:bg-gray-100 border-gray-300': !link.active
-                                            }" />
-                                        <span v-else v-html="link.label" class="px-4 py-2 text-gray-400 text-base" />
-                                    </template>
+                                <!-- Pagination Links -->
+                                <div class="mt-8" v-if="bookings.links && bookings.links.length > 3">
+                                    <div class="flex justify-center gap-4">
+                                        <template v-for="(link, index) in bookings.links" :key="index">
+                                            <Link v-if="link.url" :href="link.url" v-html="link.label"
+                                                class="px-4 py-2 rounded-md border text-base" :class="{
+                                                    'bg-blue-500 text-white border-blue-600': link.active,
+                                                    'text-gray-600 hover:bg-gray-100 border-gray-300': !link.active
+                                                }" />
+                                            <span v-else v-html="link.label"
+                                                class="px-4 py-2 text-gray-400 text-base" />
+                                        </template>
+                                    </div>
                                 </div>
                             </div>
                         </div>
