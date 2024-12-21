@@ -52,14 +52,14 @@ const formErrors = computed(() => {
 
 // Function to store form data in session storage and navigate to Payment1.vue
 const handleBooking = () => {
-    const bookingData = {
+    const bookingDetails = {
         carType: form.carType,
         checkIn: form.checkIn,
         checkOut: form.checkOut,
         promoCode: form.promoCode,
         parkingSlot: form.parking_slot
     };
-    sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+    sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
     router.visit(route('payment.step1'));
 };
 

@@ -10,25 +10,23 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-{
-    Schema::table('parking_bookings', function (Blueprint $table) {
-        // Drop the column if it exists
-        if (Schema::hasColumn('parking_bookings', 'amount')) {
-            $table->dropColumn('amount');
+    {
+        if (!Schema::hasColumn('parking_bookings', 'amount')) {
+            Schema::table('parking_bookings', function (Blueprint $table) {
+                $table->decimal('amount', 10, 2)->nullable()->after('car_type');
+            });
         }
-        
-        // Add the column
-        $table->decimal('amount', 10, 2)->nullable()->after('car_type');
-    });
-}
+    }
 
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down()
     {
-        Schema::table('parking_bookings', function (Blueprint $table) {
-            $table->dropColumn('amount');
-        });
+        if (Schema::hasColumn('parking_bookings', 'amount')) {
+            Schema::table('parking_bookings', function (Blueprint $table) {
+                $table->dropColumn('amount');
+            });
+        }
     }
 };

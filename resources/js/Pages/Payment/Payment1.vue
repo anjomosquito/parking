@@ -66,7 +66,12 @@ onMounted(() => {
     // Retrieve booking details from session storage
     const storedBookingDetails = sessionStorage.getItem('bookingDetails');
     if (storedBookingDetails) {
-        bookingDetails.value = JSON.parse(storedBookingDetails);
+        const parsedDetails = JSON.parse(storedBookingDetails);
+        bookingDetails.value = {
+            ...parsedDetails,
+            carType: parsedDetails.carType || '',  // ensure carType is set
+            duration: 0
+        };
     }
 });
 
