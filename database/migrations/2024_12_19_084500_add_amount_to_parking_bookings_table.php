@@ -9,12 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::table('parking_bookings', function (Blueprint $table) {
-            $table->decimal('amount', 10, 2)->nullable()->after('car_type');
-        });
-    }
+    public function up()
+{
+    Schema::table('parking_bookings', function (Blueprint $table) {
+        // Drop the column if it exists
+        if (Schema::hasColumn('parking_bookings', 'amount')) {
+            $table->dropColumn('amount');
+        }
+        
+        // Add the column
+        $table->decimal('amount', 10, 2)->nullable()->after('car_type');
+    });
+}
 
     /**
      * Reverse the migrations.
