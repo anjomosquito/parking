@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('parking_slot_id')->constrained('parking_slots')->onDelete('restrict');
-            $table->string('car_type');
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->string('status')->default('pending'); // pending, approved, rejected, completed
