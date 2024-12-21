@@ -74,9 +74,9 @@
             <button :class="[
               'py-2 px-4 rounded font-bold text-sm',
               parkingSlots.includes(`A${i}`)
-                ? 'bg-red-500 text-white'
-                : 'bg-green-500 text-white'
-            ]">
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-green-500 text-white hover:bg-green-600'
+            ]" @click="toggleSlot(i)">
               A{{ i }}
             </button>
           </template>
@@ -86,9 +86,14 @@
       <!-- Stats Section -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="bg-white rounded-lg p-6 shadow-md flex flex-col items-center justify-center w-64 h-64">
-          <h3 class="text-xl font-bold mb-4">Parking Lots Occupied</h3>
-          <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.total_spaces
-            }}</span>
+          <h3 class="text-xl font-bold mb-4">Parking Lots Status</h3>
+          <div class="flex flex-col items-center">
+            
+            <div>
+              <p class="text-sm text-gray-600">Occupied</p>
+              <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.total_spaces }}</span>
+            </div>
+          </div>
         </div>
 
         <div class="bg-white rounded-lg p-6 shadow-md flex flex-col items-center justify-center w-64 h-64">
@@ -185,30 +190,40 @@ import { Head } from '@inertiajs/vue3';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
+import { ref } from 'vue';
 
-const props = defineProps({
+defineProps({
   todayStats: {
     type: Object,
-    default: () => ({
-      total_spaces: 0,
-      occupied_spaces: 0,
-      total_bookings_today: 0,
-      active_users: 0
-    })
+    default() {
+      return {};
+    }
   },
   weeklyStats: {
     type: Array,
-    default: () => []
+    default() {
+      return [];
+    }
   },
   activeUsers: {
     type: Array,
-    default: () => []
+    default() {
+      return [];
+    }
   },
   parkingSlots: {
     type: Array,
-    default: () => []
+    default() {
+      return [];
+    }
   }
 });
+
+const toggleSlot = (slotNumber) => {
+  // This is just visual feedback - actual state is managed by the backend
+  const slot = `A${slotNumber}`;
+  console.log(`Slot ${slot} clicked`);
+};
 </script>
 
 <style>

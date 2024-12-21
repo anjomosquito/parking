@@ -53,12 +53,11 @@ class OverviewController extends Controller
         });
 
         // Get parking slots occupancy
-        $parkingSlots = ParkingBooking::where('status', 'approved')
-            ->whereDate('start_time', '<=', now())
-            ->whereDate('end_time', '>=', now())
-            ->with('parkingSlot')
+        $parkingSlots = ParkingSlot::select('slot_number', 'is_occupied')
+            ->orderBy('slot_number')
             ->get()
-            ->pluck('parking_slot.slot_number');
+            ->pluck('slot_number')
+            ->toArray();
 
         // Get today's statistics
         $todayStats = [
