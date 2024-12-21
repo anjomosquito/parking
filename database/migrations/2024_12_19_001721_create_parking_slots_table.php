@@ -16,13 +16,15 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Insert initial slot with a flag for infinite generation
-        DB::table('parking_slots')->insert([
-            'slot_number' => 'A1',
-            'is_occupied' => false,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Insert initial slots A1 to A50
+        for ($i = 1; $i <= 50; $i++) {
+            DB::table('parking_slots')->insert([
+                'slot_number' => 'A' . $i,
+                'is_occupied' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 
     public function down()

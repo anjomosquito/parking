@@ -24,20 +24,27 @@
         <!-- Settings Dropdown and Navigation Links -->
         <div class="flex items-center">
           <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-            <NavLink :href="route('admin.dashboard')" :active="route().current('admin.dashboard')">
+            <NavLink :href="route('admin.dashboard')" :active="route().current('admin.dashboard')"
+              class="text-yellow-500 text-lg">
               Dashboard
             </NavLink>
-            <NavLink :href="route('admin.overview')" :active="route().current('admin.overview')">
+
+            <NavLink :href="route('admin.overview')" :active="route().current('admin.overview')"
+              class="text-yellow-500 text-lg">
               Overview
             </NavLink>
+
             <NavLink :href="route('admin.parking-bookings.index')"
-              :active="route().current('admin.parking-bookings.index')">
+              :active="route().current('admin.parking-bookings.index')" class="text-yellow-500 text-lg">
               Parking Plan
             </NavLink>
-            <NavLink :href="route('admin.users')" :active="route().current('admin.users')">
+
+            <NavLink :href="route('admin.users')" :active="route().current('admin.users')"
+              class="text-yellow-500 text-lg">
               Users
             </NavLink>
           </div>
+
           <div class="ml-3 relative">
             <Dropdown align="right" width="48">
               <template #trigger>
@@ -88,7 +95,7 @@
         <div class="bg-white rounded-lg p-6 shadow-md flex flex-col items-center justify-center w-64 h-64">
           <h3 class="text-xl font-bold mb-4">Parking Lots Status</h3>
           <div class="flex flex-col items-center">
-            
+
             <div>
               <p class="text-sm text-gray-600">Occupied</p>
               <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.total_spaces }}</span>

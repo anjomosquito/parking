@@ -11,13 +11,17 @@ return new class extends Migration
         Schema::create('parking_bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('parking_slot_id')->constrained('parking_slots')->onDelete('cascade');
+            $table->foreignId('parking_slot_id')->constrained('parking_slots')->onDelete('restrict');
+            $table->string('car_type');
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->string('status')->default('pending'); // pending, approved, rejected, completed
             $table->decimal('amount', 10, 2)->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
+
+            // Add index for common queries
+            $table->index(['status', 'start_time', 'end_time']);
         });
     }
 

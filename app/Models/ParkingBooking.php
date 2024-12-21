@@ -43,4 +43,28 @@ class ParkingBooking extends Model
     {
         return $this->belongsTo(ParkingSlot::class);
     }
+
+    protected static function booted()
+    {
+        // When a booking is approved, mark the slot as occupied
+        static::updated(function ($booking) {
+            if ($booking->isDirty('status')) {
+                $oldStatus = $booking->getOriginal('status');
+                $newStatus = $booking->status;
+
+                if ($oldStatus !== 'approved' && $newStatus === 'approved') {
+                    $booking->parkingSlot->update(['is_occupied' => true]);
+                } elseif ($oldStatus === 'approved' && $newStatus !== 'approved') {
+                    $booking->parkingSlot->update(['is_occupied' => false]);
+                }
+            }
+        });
+
+        // When a booking is deleted, ensure the slot is marked as unoccupied
+        static::deleted(function ($booking) {
+            if ($booking->status === 'approved') {
+                $booking->parkingSlot->update(['is_occupied' => false]);
+            }
+        });
+    }
 }

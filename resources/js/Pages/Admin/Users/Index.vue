@@ -24,21 +24,27 @@
                 <!-- Settings Dropdown and Navigation Links -->
                 <div class="flex items-center">
                     <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                        <NavLink :href="route('admin.dashboard')" :active="route().current('admin.dashboard')">
+                        <NavLink :href="route('admin.dashboard')" :active="route().current('admin.dashboard')"
+                            class="text-yellow-500 text-lg">
                             Dashboard
                         </NavLink>
 
-                        <NavLink :href="route('admin.overview')" :active="route().current('admin.overview')">
+                        <NavLink :href="route('admin.overview')" :active="route().current('admin.overview')"
+                            class="text-yellow-500 text-lg">
                             Overview
                         </NavLink>
+
                         <NavLink :href="route('admin.parking-bookings.index')"
-                            :active="route().current('admin.parking-bookings.index')">
+                            :active="route().current('admin.parking-bookings.index')" class="text-yellow-500 text-lg">
                             Parking Plan
                         </NavLink>
-                        <NavLink :href="route('admin.users')" :active="route().current('admin.users')">
+
+                        <NavLink :href="route('admin.users')" :active="route().current('admin.users')"
+                            class="text-yellow-500 text-lg">
                             Users
                         </NavLink>
                     </div>
+
                     <div class="ml-3 relative">
                         <Dropdown align="right" width="48">
                             <template #trigger>
@@ -97,7 +103,7 @@
                                             <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Bookings</th>
-                                            
+
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -136,7 +142,7 @@
                                                     View Bookings
                                                 </button>
                                             </td>
-                                            
+
                                         </tr>
                                     </tbody>
                                 </table>
@@ -202,12 +208,8 @@
         </div>
     </div>
 
-    <UserBookingsModal 
-        :show="showBookingsModal" 
-        :bookings="selectedUserBookings"
-        :user="selectedUser"
-        @close="showBookingsModal = false" 
-    />
+    <UserBookingsModal :show="showBookingsModal" :bookings="selectedUserBookings" :user="selectedUser"
+        @close="showBookingsModal = false" />
 
 </template>
 
@@ -237,16 +239,16 @@ const selectedUser = ref(null);
 // Function to generate PDF report for a user
 const generateUserReport = (user) => {
     const doc = new jsPDF();
-    
+
     // Add title
     doc.setFontSize(20);
     doc.text(`Parking Bookings Report - ${user.name}`, 14, 20);
-    
+
     // Add user info
     doc.setFontSize(12);
     doc.text(`Email: ${user.email}`, 14, 30);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 37);
-    
+
     // Prepare table data
     const tableData = user.bookings.map(booking => [
         booking.car_type,
@@ -255,7 +257,7 @@ const generateUserReport = (user) => {
         formatDateTime(booking.end_time),
         booking.status
     ]);
-    
+
     // Add table
     doc.autoTable({
         startY: 45,
@@ -266,7 +268,7 @@ const generateUserReport = (user) => {
         headStyles: { fillColor: [41, 128, 185], textColor: 255 },
         alternateRowStyles: { fillColor: [245, 245, 245] }
     });
-    
+
     // Save the PDF
     doc.save(`parking_report_${user.name.replace(/\s+/g, '_').toLowerCase()}.pdf`);
 };

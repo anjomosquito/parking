@@ -76,8 +76,27 @@ class ParkingSlot extends Model
     /**
      * Get the bookings for this parking slot
      */
-    public function bookings(): HasMany
+    public function bookings()
     {
         return $this->hasMany(ParkingBooking::class);
+    }
+
+    /**
+     * Get the current booking for this parking slot
+     */
+    public function currentBooking()
+    {
+        return $this->hasOne(ParkingBooking::class)
+            ->where('status', 'approved')
+            ->whereDate('start_time', '<=', now())
+            ->whereDate('end_time', '>=', now());
+    }
+
+    /**
+     * Check if the parking slot is currently occupied
+     */
+    public function isCurrentlyOccupied()
+    {
+        return $this->currentBooking()->exists();
     }
 }
