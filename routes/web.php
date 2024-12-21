@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\OverviewController;
 use App\Http\Controllers\PaymentController; // Added PaymentController
 use App\Http\Controllers\ParkingSlotController; // Added ParkingSlotController
+use App\Http\Controllers\Admin\AdminParkingSlotController; // Added import for AdminParkingSlotController
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;

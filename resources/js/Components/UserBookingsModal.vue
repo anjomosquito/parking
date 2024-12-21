@@ -8,6 +8,16 @@
         </button>
   
         <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">User Bookings History</h2>
+        
+        <div class="flex justify-end mb-4">
+          <button @click="generatePDF" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+            </svg>
+            Download PDF
+          </button>
+        </div>
+
         <div class="overflow-x-auto">
           <table class="min-w-full border-collapse border border-gray-300">
             <thead class="bg-gray-100">
@@ -65,6 +75,7 @@
   import { ref } from 'vue';
   import Modal from '@/Components/Modal.vue';
   import { format } from 'date-fns';
+  import jsPDF from 'jspdf';
   
   const props = defineProps({
     show: Boolean,
@@ -72,6 +83,10 @@
       type: Array,
       default: () => [],
     },
+    user: {
+      type: Object,
+      required: true
+    }
   });
   
   const emit = defineEmits(['close']);
@@ -94,6 +109,46 @@
       'bg-gray-100 text-gray-800': status === 'completed',
     };
   };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    
+    // Add title and user info
+    doc.setFontSize(20);
+    doc.text('User Bookings History', 14, 20);
+    
+    // Add user details
+    doc.setFontSize(12);
+    doc.text(`Customer: ${props.user.name}`, 14, 30);
+    doc.text(`Email: ${props.user.email}`, 14, 37);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 44);
+
+    // Add table
+    doc.autoTable({
+      startY: 50,
+      columns: [
+        { header: 'Car Type', dataKey: 'car_type' },
+        { header: 'Slot', dataKey: 'slot' },
+        { header: 'Check In', dataKey: 'check_in' },
+        { header: 'Check Out', dataKey: 'check_out' },
+        { header: 'Status', dataKey: 'status' },
+      ],
+      body: props.bookings.map((booking) => ({
+        car_type: booking.car_type,
+        slot: booking.parking_slot?.slot_number || 'N/A',
+        check_in: formatDateTime(booking.start_time),
+        check_out: formatDateTime(booking.end_time),
+        status: booking.status,
+      })),
+      theme: 'grid',
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 245, 245] }
+    });
+    
+    // Save with user name in filename
+    doc.save(`bookings_${props.user.name.replace(/\s+/g, '_').toLowerCase()}.pdf`);
+  };
   </script>
   
   <style scoped>
@@ -101,4 +156,3 @@
     background-color: #f9fafb;
   }
   </style>
-  

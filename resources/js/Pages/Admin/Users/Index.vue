@@ -97,6 +97,7 @@
                                             <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Bookings</th>
+                                            
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -135,6 +136,7 @@
                                                     View Bookings
                                                 </button>
                                             </td>
+                                            
                                         </tr>
                                     </tbody>
                                 </table>
@@ -200,7 +202,12 @@
         </div>
     </div>
 
-    <UserBookingsModal :show="showBookingsModal" :bookings="selectedUserBookings" @close="showBookingsModal = false" />
+    <UserBookingsModal 
+        :show="showBookingsModal" 
+        :bookings="selectedUserBookings"
+        :user="selectedUser"
+        @close="showBookingsModal = false" 
+    />
 
 </template>
 
@@ -209,9 +216,10 @@ import { Head, Link } from '@inertiajs/vue3';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
-import { ref } from 'vue';
 import UserBookingsModal from '@/Components/UserBookingsModal.vue';
-import axios from 'axios';
+import { ref } from 'vue';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 const props = defineProps({
     users: {
@@ -224,6 +232,50 @@ const showDeleteModal = ref(false);
 const selectedBooking = ref(null);
 const showBookingsModal = ref(false);
 const selectedUserBookings = ref([]);
+const selectedUser = ref(null);
+
+// Function to generate PDF report for a user
+const generateUserReport = (user) => {
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.text(`Parking Bookings Report - ${user.name}`, 14, 20);
+    
+    // Add user info
+    doc.setFontSize(12);
+    doc.text(`Email: ${user.email}`, 14, 30);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 37);
+    
+    // Prepare table data
+    const tableData = user.bookings.map(booking => [
+        booking.car_type,
+        booking.parking_slot?.slot_number || 'N/A',
+        formatDateTime(booking.start_time),
+        formatDateTime(booking.end_time),
+        booking.status
+    ]);
+    
+    // Add table
+    doc.autoTable({
+        startY: 45,
+        head: [['Car Type', 'Slot', 'Check In', 'Check Out', 'Status']],
+        body: tableData,
+        theme: 'grid',
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        alternateRowStyles: { fillColor: [245, 245, 245] }
+    });
+    
+    // Save the PDF
+    doc.save(`parking_report_${user.name.replace(/\s+/g, '_').toLowerCase()}.pdf`);
+};
+
+const formatDateTime = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+};
 
 const confirmDelete = (booking) => {
     selectedBooking.value = booking;
@@ -240,6 +292,7 @@ const showUserBookings = async (user) => {
         const response = await axios.get(route('api.user.bookings', user.id));
         selectedUserBookings.value = response.data;
         showBookingsModal.value = true;
+        selectedUser.value = user;
     } catch (error) {
         console.error('Error fetching user bookings:', error);
     }

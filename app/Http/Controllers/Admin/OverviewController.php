@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ParkingBooking;
+use App\Models\ParkingSlot;
 use App\Models\ParkingStatistic;
 use App\Models\User;
 use Carbon\Carbon;
@@ -61,7 +62,7 @@ class OverviewController extends Controller
 
         // Get today's statistics
         $todayStats = [
-            'total_spaces' => 50, // You can make this configurable
+            'total_spaces' => ParkingSlot::count(), 
             'occupied_spaces' => ParkingBooking::where('status', 'approved')
                 ->whereDate('start_time', '<=', now())
                 ->whereDate('end_time', '>=', now())
@@ -70,7 +71,6 @@ class OverviewController extends Controller
             'active_users' => User::whereHas('parkingBookings', function($query) {
                 $query->where('status', 'approved');
             })->count(),
-            
         ];
 
         // Get weekly statistics

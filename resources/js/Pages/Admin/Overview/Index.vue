@@ -87,7 +87,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="bg-white rounded-lg p-6 shadow-md flex flex-col items-center justify-center w-64 h-64">
           <h3 class="text-xl font-bold mb-4">Parking Lots Occupied</h3>
-          <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.occupied_spaces }}/{{ todayStats.total_spaces
+          <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.total_spaces
             }}</span>
         </div>
 
