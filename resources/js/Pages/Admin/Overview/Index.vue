@@ -91,11 +91,10 @@
       </div>
 
       <!-- Stats Section -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="bg-white rounded-lg p-6 shadow-md flex flex-col items-center justify-center w-64 h-64">
           <h3 class="text-xl font-bold mb-4">Parking Lots Status</h3>
           <div class="flex flex-col items-center">
-
             <div>
               <p class="text-sm text-gray-600">Occupied</p>
               <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.total_spaces }}</span>
@@ -106,6 +105,11 @@
         <div class="bg-white rounded-lg p-6 shadow-md flex flex-col items-center justify-center w-64 h-64">
           <h3 class="text-xl font-bold mb-4">Total Customers Today</h3>
           <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.total_bookings_today }}</span>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 shadow-md flex flex-col items-center justify-center w-64 h-64">
+          <h3 class="text-xl font-bold mb-4">Total Amount</h3>
+          <span class="text-4xl text-yellow-400 font-bold">{{ todayStats.total_amount }}</span>
         </div>
       </div>
 

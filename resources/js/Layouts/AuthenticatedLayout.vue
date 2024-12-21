@@ -20,16 +20,30 @@ const showingNavigationDropdown = ref(false);
                     <div class="flex justify-between h-16">
                         <div class="flex items-center">
                             <Link :href="route('dashboard')" class="text-2xl font-bold">
-                                <span class="text-yellow-400">P PARKING</span>
-                                <span class="text-white">HUB</span>
+                            <span class="text-yellow-400">P PARKING</span>
+                            <span class="text-white">HUB</span>
                             </Link>
                         </div>
 
                         <!-- Navigation Links -->
                         <div class="flex items-center space-x-8">
-                            <Link :href="route('dashboard')" class="text-yellow-400 border-b-2 border-yellow-400">Home</Link>
-                            <Link :href="route('about.us')" class="text-gray-300 hover:text-white">About us</Link>
-                            <Link :href="route('parkingPlan.index')" class="text-gray-300 hover:text-white">Plan</Link>
+                            <Link :href="route('dashboard')" :class="route().current('dashboard')
+                                ? 'text-yellow-400 border-b-2 border-yellow-400'
+                                : 'text-gray-300 hover:text-white'">
+                            Home
+                            </Link>
+
+                            <Link :href="route('about.us')" :class="route().current('about.us')
+                                ? 'text-yellow-400 border-b-2 border-yellow-400'
+                                : 'text-gray-300 hover:text-white'">
+                            About us
+                            </Link>
+
+                            <Link :href="route('parkingPlan.index')" :class="route().current('parkingPlan.index')
+                                ? 'text-yellow-400 border-b-2 border-yellow-400'
+                                : 'text-gray-300 hover:text-white'">
+                            Plan
+                            </Link>
 
                             <!-- Settings Dropdown -->
                             <div class="relative">
@@ -40,29 +54,24 @@ const showingNavigationDropdown = ref(false);
                                     </template>
 
                                     <template #content>
-                                        <div class="bg-white/90 backdrop-blur-md rounded-lg shadow-xl overflow-hidden min-w-[200px]">
+                                        <div
+                                            class="bg-white/90 backdrop-blur-md rounded-lg shadow-xl overflow-hidden min-w-[200px]">
                                             <!-- User Name -->
                                             <div class="px-4 py-3 border-b border-gray-100">
                                                 <p class="text-gray-600 text-sm font-light">
                                                     {{ $page.props.auth.user.name }}
                                                 </p>
                                             </div>
-                                            
+
                                             <!-- Menu Items -->
                                             <div class="py-1">
-                                                <DropdownLink 
-                                                    :href="route('profile.edit')" 
-                                                    class="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition duration-150"
-                                                >
+                                                <DropdownLink :href="route('profile.edit')"
+                                                    class="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition duration-150">
                                                     Profile
                                                 </DropdownLink>
-                                                
-                                                <DropdownLink 
-                                                    :href="route('logout')" 
-                                                    method="post" 
-                                                    as="button"
-                                                    class="block w-full text-left px-4 py-2 text-sm text-black-600 hover:bg-black-50 transition duration-150"
-                                                >
+
+                                                <DropdownLink :href="route('logout')" method="post" as="button"
+                                                    class="block w-full text-left px-4 py-2 text-sm text-black-600 hover:bg-black-50 transition duration-150">
                                                     Log Out
                                                 </DropdownLink>
                                             </div>
@@ -74,31 +83,19 @@ const showingNavigationDropdown = ref(false);
 
                         <!-- Hamburger -->
                         <div class="-me-2 flex items-center sm:hidden">
-                            <button
-                                @click="showingNavigationDropdown = !showingNavigationDropdown"
-                                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-800 focus:outline-none focus:bg-gray-800 focus:text-gray-500 transition duration-150 ease-in-out"
-                            >
+                            <button @click="showingNavigationDropdown = !showingNavigationDropdown"
+                                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-800 focus:outline-none focus:bg-gray-800 focus:text-gray-500 transition duration-150 ease-in-out">
                                 <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path
-                                        :class="{
-                                            hidden: showingNavigationDropdown,
-                                            'inline-flex': !showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        :class="{
-                                            hidden: !showingNavigationDropdown,
-                                            'inline-flex': showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
+                                    <path :class="{
+                                        hidden: showingNavigationDropdown,
+                                        'inline-flex': !showingNavigationDropdown,
+                                    }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6h16M4 12h16M4 18h16" />
+                                    <path :class="{
+                                        hidden: !showingNavigationDropdown,
+                                        'inline-flex': showingNavigationDropdown,
+                                    }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
@@ -106,28 +103,20 @@ const showingNavigationDropdown = ref(false);
                 </div>
 
                 <!-- Responsive Navigation Menu -->
-                <div
-                    :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
-                    class="sm:hidden"
-                >
+                <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
+                    class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
-                        <Link
-                            :href="route('dashboard')"
-                            class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out"
-                        >
-                            Home
+                        <Link :href="route('dashboard')"
+                            class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out">
+                        Home
                         </Link>
-                        <Link
-                            :href="route('about.us')"
-                            class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out"
-                        >
-                            About us
+                        <Link :href="route('about.us')"
+                            class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out">
+                        About us
                         </Link>
-                        <Link
-                            :href="route('parkingPlan.index')"
-                            class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out"
-                        >
-                            Plan
+                        <Link :href="route('parkingPlan.index')"
+                            class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out">
+                        Plan
                         </Link>
                     </div>
 
@@ -141,19 +130,13 @@ const showingNavigationDropdown = ref(false);
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <Link
-                                :href="route('profile.edit')"
-                                class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out"
-                            >
-                                Profile
+                            <Link :href="route('profile.edit')"
+                                class="block w-full ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out">
+                            Profile
                             </Link>
-                            <Link
-                                :href="route('logout')"
-                                method="post"
-                                as="button"
-                                class="block w-full text-start ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out"
-                            >
-                                Log Out
+                            <Link :href="route('logout')" method="post" as="button"
+                                class="block w-full text-start ps-3 pe-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:text-white focus:bg-gray-800 transition duration-150 ease-in-out">
+                            Log Out
                             </Link>
                         </div>
                     </div>
